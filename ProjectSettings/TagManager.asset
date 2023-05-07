@@ -4,15 +4,14 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Background
-  - Ground
-  - Enemy
   - Bullet
+  - Enemy
+  - Serching
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - Ground
+  - 
   - Water
   - UI
   - Platform

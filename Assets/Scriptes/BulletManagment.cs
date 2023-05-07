@@ -4,8 +4,11 @@ using UnityEngine;
 
 public class BulletManagment : MonoBehaviour
 {
+    [SerializeField] private GameObject Impact;
     public float bulletSpeed;
-    
+
+    public int Damage;
+
     void Start()
     {
 
@@ -20,7 +23,13 @@ public class BulletManagment : MonoBehaviour
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
-        Destroy(this.gameObject);
+        if (other.gameObject.tag.Equals("Enemy"))
+        {
+            Destroy(this.gameObject);
+            GameObject obj = Instantiate(Impact, transform.position, Quaternion.identity);
+
+            Destroy(obj, 0.4f);
+        }
     }
     private void OnBecameInvisible()
     {

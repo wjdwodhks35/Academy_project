@@ -9,6 +9,7 @@ public class PlayerController : MonoBehaviour
 
     //이동
     public float Speed;
+    public float ShootandRunSpeed;
     public float jumpPower;
     float hor;
     bool isJump = false;
@@ -19,11 +20,10 @@ public class PlayerController : MonoBehaviour
     public bool canshot = true;
     public float shootDelay;
     float shootTimer = 0;
+    bool isShoot;
 
     //에니메이션
     Animator ani;
-    string animationsState = "AnimationState";
-
     private void Start()
     {
         bulletShooter = this.transform.Find("BulletShooter");
@@ -41,12 +41,16 @@ public class PlayerController : MonoBehaviour
         Flip();
         UpdateState();
         ShootController();
+        UpdateAttackAnim();
+
     }
     private void FixedUpdate()
     {
         hor = Input.GetAxisRaw("Horizontal");
 
         rigid.velocity = new Vector2(hor * Speed, rigid.velocity.y);
+        if (isShoot)
+            rigid.velocity = new Vector2(hor * ShootandRunSpeed, rigid.velocity.y);
     }
     private void Jump()
     {
@@ -65,6 +69,14 @@ public class PlayerController : MonoBehaviour
         {
             isJump = false;
             canshot = true;
+        }
+        if(other.gameObject.tag.Equals("Enemy"))
+        {
+            ani.SetBool("isLive", false);
+            GameObject.Destroy(gameObject, 1.1f);
+            Speed = 0;
+            jumpPower = 0;
+            canshot = false;
         }
     }
     private void OnTriggerEnter2D(Collider2D other)
@@ -95,19 +107,40 @@ public class PlayerController : MonoBehaviour
         }
     }
 
+
+    public float AnimationDelaySec = 0f;
+
+    public void UpdateAttackAnim()
+    {
+        if (AnimationDelaySec <= 0f)
+            return;
+
+        AnimationDelaySec -= Time.deltaTime;
+        if (AnimationDelaySec <= 0f)
+        {
+            ani.SetBool("isAttack", false);
+            ani.SetFloat("AttackWeight", 0);
+            isShoot = false;
+        }
+    }
+
     private void ShootController()
     {
-        if (Input.GetMouseButtonDown(0) && canshot)
+        if (Input.GetMouseButton(0) && canshot)
         {
             if (shootTimer > shootDelay)
             {
+                ani.SetFloat("AttackWeight", 1);
                 ani.SetBool("isAttack", true);
                 GameObject cloneBullet = Instantiate(copyBullet, bulletShooter.transform.position, transform.rotation);
                 shootTimer = 0;
-            }
 
-            shootTimer += Time.deltaTime;
+                isShoot = true;
+                AnimationDelaySec = 0.5f;
+            }
         }
-        ani.SetBool("isAttack", false);
+
+        shootTimer += Time.deltaTime;
+        //ani.SetBool("isAttack", false);
     }
 }
